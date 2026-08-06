@@ -1,0 +1,23 @@
+<!-- <ul>
+    @for (nodo of arbol(); track nodo.ruta) {
+    <li>
+        {{ nodo.nombre }}
+        ({{ nodo.tipo }})
+        @if (nodo.valor !== undefined) {
+        : {{ nodo.valor }}
+        }
+    </li>
+    }
+</ul> -->
+
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+    @for (nodo of arbol(); track nodo.ruta) {
+        <mat-tab label={{formarTab(nodo.nombre)}}>
+            @if (nodo.hijos.length > 0) {
+                <app-json-menu [arbol]="nodo.hijos"></app-json-menu>
+            } @else {
+                <p>{{nodo.valor}}</p>
+            }
+        </mat-tab>
+    }
+</mat-tab-group>

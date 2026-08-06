@@ -1,0 +1,73 @@
+<p>Nivel:{{level}}</p>
+@if (isObject(value)) {
+<!-- SECCIÓN: objeto -->
+<section class="json-section" [class]="'level-' + level">
+    @if (level > 1) {
+        <h3 class="section-title">{{ formatLabel(label) }}</h3>
+    }
+
+    <div class="fields-grid">
+        @for (entry of objectEntries(value); track entry[0]) {
+            @if (isPrimitive(entry[1])) {
+                <div class="field">
+                    <span class="field-label">{{ formatLabel(entry[0]) }}</span>
+                    <span class="field-value">{{ formatValue(entry[1]) }}</span>
+                </div>
+            }
+        }
+    </div>
+
+    @for (entry of objectEntries(value); track entry[0]) {
+        @if (!isPrimitive(entry[1])) {
+            <app-json-node [label]="entry[0]" [value]="entry[1]" [level]="level + 1">
+            </app-json-node>
+        }
+    }
+</section>
+
+} 
+<!-- SECCIÓN: Array -->
+@else if (isArray(value)) {
+
+<section class="json-section" [class]="'level-' + level">
+    <h3 class="section-title">{{ formatLabel(label) }}</h3>
+
+    @if (isUniformObjectArray(value)) {
+    <!-- TABLA para arrays de objetos uniformes -->
+    <table class="json-table">
+        <thead>
+            <tr>
+                @for (col of tableColumns(value); track col) {
+                    <th>{{ formatLabel(col) }}</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (row of value; track $index) {
+            <tr>
+                @for (col of tableColumns(value); track col) {
+                    <td>{{ formatValue(($any(row))[col]) }}</td>
+                }
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    } @else if (value.length > 0 && isPrimitive(value[0])) {
+    <!-- LISTA de chips para arrays de valores simples -->
+    <div class="chips">
+        @for (item of value; track $index) {
+            <span class="chip">{{ formatValue(item) }}</span>
+        }
+    </div>
+
+    } @else {
+    <!-- Fallback: cada item como sub-sección -->
+        @for (item of value; track $index) {
+            <app-json-node [label]="'Elemento ' + ($index + 1)" [value]="item" [level]="level + 1">
+            </app-json-node>
+        }
+    }
+</section>
+
+}

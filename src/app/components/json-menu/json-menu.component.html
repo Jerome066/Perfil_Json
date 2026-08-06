@@ -1,13 +1,15 @@
 <mat-list role="list">
     @for (nodo of arbol(); track nodo.ruta) {
-        @if (nodo.hijos.length > 0) {
+        @if (nodo.hijos.length > 0 || nodo.nivel === 1  && !['string' , 'number' , 'boolean'].includes(nodo.tipo)) {
             <mat-list-item role="listitem"><a href="#">{{formarString(nodo.nombre)}}</a></mat-list-item>
+        } @if (mostrarContenidoH()) {
+
         }
     }
 </mat-list>
 <br>
 @for (nodo of arbol(); track nodo.ruta) {
-    @if (nodo.hijos.length === 0) {
+    @if ((nodo.hijos.length === 0)) {
         <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
     }@else if(['string' , 'number' , 'boolean'].includes(nodo.tipo)){
         <mat-list-item role="listitem">{{nodo.valor}}</mat-list-item>

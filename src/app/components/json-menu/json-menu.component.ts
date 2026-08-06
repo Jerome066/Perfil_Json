@@ -13,6 +13,8 @@ import {MatButtonModule} from '@angular/material/button';
 export class JsonMenuComponent {
   arbol = input.required<JsonNode[]>();
   mensaje = signal<string>("");
+  mostrarContenidoH = signal<true | false>(false);
+
 
   msjValor (cadena: string):void{
     this.mensaje.set(this.mensaje + cadena);

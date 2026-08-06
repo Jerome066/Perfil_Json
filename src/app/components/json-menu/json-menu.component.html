@@ -1,17 +1,17 @@
+@for (nodo of arbol(); track nodo.ruta) {
+    @if ((nodo.hijos.length === 0) && (nodo.tipo !== "array")) {
+        <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
+    }@else if(['string' , 'number' , 'boolean'].includes(nodo.tipo)){
+        <mat-list-item role="listitem">{{nodo}}</mat-list-item>
+    }
+}
+<br>
 <mat-list role="list">
     @for (nodo of arbol(); track nodo.ruta) {
-        @if (nodo.hijos.length > 0 || nodo.nivel === 1  && !['string' , 'number' , 'boolean'].includes(nodo.tipo)) {
-            <mat-list-item role="listitem"><a href="#">{{formarString(nodo.nombre)}}</a></mat-list-item>
-        } @if (mostrarContenidoH()) {
-
+        @if (nodo.hijos.length > 0 || nodo.nivel === 1 && !['string' , 'number' , 'boolean'].includes(nodo.tipo)) {
+        <mat-list-item role="listitem" (click)="informacionNodo(nodo)">
+            <button mat-flat-button>{{formarString(nodo.nombre)}}</button></mat-list-item>
         }
     }
 </mat-list>
-<br>
-@for (nodo of arbol(); track nodo.ruta) {
-    @if ((nodo.hijos.length === 0)) {
-        <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
-    }@else if(['string' , 'number' , 'boolean'].includes(nodo.tipo)){
-        <mat-list-item role="listitem">{{nodo.valor}}</mat-list-item>
-    }
-}
+    <app-json-secciones [arbol]="nodoActual()"></app-json-secciones>

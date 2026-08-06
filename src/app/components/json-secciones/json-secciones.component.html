@@ -1,0 +1,12 @@
+@for (nodo of arbol()?.hijos; track nodo.ruta) {
+    @if (nodo.tipo !== "array") {
+        @for (nodoH of nodo.hijos; track nodoH.ruta) {
+            <app-json-secciones [arbol]="nodoH"></app-json-secciones>
+        }
+    }
+    @if ((nodo.hijos.length === 0)) {
+        <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
+    }@else if(['string' , 'number' , 'boolean'].includes(nodo.tipo)){
+        <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
+    }
+}

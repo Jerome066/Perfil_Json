@@ -1,6 +1,8 @@
 @if (arbol(); as seccion) {
     <section class="json-seccion">
-        <h3>{{ formarString(seccion.nombre) }}</h3>
+        @if (!seccion.nombre.includes("[")) {
+            <h3>{{ formarString(seccion.nombre) }}</h3>
+        }
         <!-- Valor aislado: una tabla de una sola columna. -->
         @if (seccion.hijos.length === 0) {
             <table class="tabla-json">

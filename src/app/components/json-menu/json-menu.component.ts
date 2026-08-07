@@ -11,19 +11,18 @@ import { JsonSeccionesComponent } from '../json-secciones/json-secciones.compone
   styleUrl: './json-menu.component.css'
 })
 export class JsonMenuComponent {
-  [x: string]: any;
+  /** Nodos del segundo nivel que se presentan como opciones del menú. */
   arbol = input.required<JsonNode[]>();
-  mensaje = signal<string>("");
-  nodoActual = signal<JsonNode | null>( null);
 
+  /** Nodo elegido por el usuario; su detalle se delega a JsonSeccionesComponent. */
+  nodoActual = signal<JsonNode | null>(null);
+
+  /** Actualiza la sección cuyo contenido se muestra debajo del menú. */
   informacionNodo(nodo: JsonNode): void {
     this.nodoActual.set(nodo);
   }
 
-  msjValor(cadena: string): void {
-    this.mensaje.set(this.mensaje + cadena);
-  }
-
+  /** Convierte claves técnicas (camelCase, snake_case o kebab-case) en etiquetas legibles. */
   formarString(key: string): string {
     const withSpaces = key
       .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase
@@ -33,4 +32,5 @@ export class JsonMenuComponent {
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
   }
+
 }

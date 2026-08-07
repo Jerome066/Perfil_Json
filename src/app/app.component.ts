@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { JsonInputComponent } from './components/json-input/json-input.component';
+import { JsonLevelsComponent } from './components/json-levels/json-levels.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, JsonInputComponent],
+  imports: [JsonLevelsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

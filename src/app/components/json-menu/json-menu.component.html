@@ -1,17 +1,21 @@
-@for (nodo of arbol(); track nodo.ruta) {
-    @if ((nodo.hijos.length === 0) && (nodo.tipo !== "array")) {
-        <mat-list-item role="listitem">{{formarString(nodo.nombre + ":" + nodo.valor)}}</mat-list-item>
-    }@else if(['string' , 'number' , 'boolean'].includes(nodo.tipo)){
-        <mat-list-item role="listitem">{{nodo}}</mat-list-item>
-    }
-}
-<br>
+<!-- Valores simples: se muestran directamente; objetos, arreglos y null: se navegan con un botón. -->
 <mat-list role="list">
     @for (nodo of arbol(); track nodo.ruta) {
-        @if (nodo.hijos.length > 0 || nodo.nivel === 1 && !['string' , 'number' , 'boolean'].includes(nodo.tipo)) {
-        <mat-list-item role="listitem" (click)="informacionNodo(nodo)">
-            <button mat-flat-button>{{formarString(nodo.nombre)}}</button></mat-list-item>
+        @if (['string', 'number', 'boolean'].includes(nodo.tipo)) {
+            <mat-list-item role="listitem">
+                <strong>{{ formarString(nodo.nombre) }}:</strong>&nbsp;{{ nodo.valor }}
+            </mat-list-item>
+        } @else {
+            <mat-list-item role="listitem">
+                <button mat-flat-button type="button" (click)="informacionNodo(nodo)">
+                    {{ formarString(nodo.nombre) }}
+                </button>
+            </mat-list-item>
         }
     }
 </mat-list>
-    <app-json-secciones [arbol]="nodoActual()"></app-json-secciones>
+
+<!-- Solo se crea la sección de detalle después de seleccionar un nodo navegable. -->
+@if (nodoActual(); as nodo) {
+    <app-json-secciones [arbol]="nodo"></app-json-secciones>
+}

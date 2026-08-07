@@ -1,15 +1,26 @@
 <!-- Valores simples: se muestran directamente; objetos, arreglos y null: se navegan con un botón. -->
+<!-- Barra superior -->
+<div class="barra-nodos">
+    @for (nodo of arbol(); track nodo.ruta) {
+        @if (!['string', 'number', 'boolean'].includes(nodo.tipo)) {
+            <button
+                mat-flat-button
+                type="button"
+                class="btn-nodo"
+                (click)="informacionNodo(nodo)">
+                {{ formarString(nodo.nombre) }}
+            </button>
+        }
+    }
+</div>
+
+<!-- Lista de datos -->
 <mat-list role="list">
     @for (nodo of arbol(); track nodo.ruta) {
         @if (['string', 'number', 'boolean'].includes(nodo.tipo)) {
             <mat-list-item role="listitem">
-                <strong>{{ formarString(nodo.nombre) }}:</strong>&nbsp;{{ nodo.valor }}
-            </mat-list-item>
-        } @else {
-            <mat-list-item role="listitem">
-                <button mat-flat-button type="button" (click)="informacionNodo(nodo)">
-                    {{ formarString(nodo.nombre) }}
-                </button>
+                <strong>{{ formarString(nodo.nombre) }}:</strong>
+                &nbsp;{{ nodo.valor }}
             </mat-list-item>
         }
     }

@@ -1,72 +1,86 @@
+<!-- El bloque solo se renderiza cuando el componente recibe un nodo JSON. -->
 @if (arbol(); as seccion) {
+    <!-- Contenedor visual de la sección actual, ya sea menú, fila o diálogo. -->
     <section class="json-seccion">
-        @if (!seccion.nombre.includes("[")) {
+        <!-- Los elementos de arreglo se identifican como [0], [1], etc.; se omite ese título técnico. -->
+        @if (!seccion.nombre.includes('[')) {
             <h3>{{ formarString(seccion.nombre) }}</h3>
         }
-        <!-- Valor aislado: una tabla de una sola columna. -->
+
+        <!-- Nodo primitivo: se muestra como una tabla de una columna y una fila. -->
         @if (seccion.hijos.length === 0) {
             <table class="tabla-json">
+                <!-- El nombre de la propiedad funciona como encabezado. -->
                 <thead><tr><th>{{ formarString(seccion.nombre) }}</th></tr></thead>
-                <tbody>
-                    <tr><td>{{ mostrarValor(seccion) }}</td></tr>
-                </tbody>
+                <!-- El valor convertido a texto se presenta en la única celda. -->
+                <tbody><tr><td>{{ mostrarValor(seccion) }}</td></tr></tbody>
             </table>
-        <!-- Arreglo de objetos con la misma estructura: una tabla por registro. -->
-        } @else if (seccion.tipo === 'array' && esArregloDeObjetosUniformes(seccion.hijos)) {
-            @for (fila of elementosPagina(seccion.hijos); track fila.ruta) {
-                <table class="tabla-json">
-                    <thead>
+
+        <!-- Arreglo de objetos que comparten campos simples: una tabla con varias filas. -->
+        } @else if (seccion.tipo === 'array' && esArregloDeObjetosTabulable(seccion.hijos)) {
+            <table class="tabla-json">
+                <thead>
+                    <tr>
+                        <!-- Limita la vista resumida a ocho campos simples compartidos. -->
+                        @for (columna of columnasPrincipales(seccion.hijos); track columna) {
+                            <th>{{ formarString(columna) }}</th>
+                        }
+                        <!-- Columna de acción para abrir información no visible en la tabla. -->
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Solo se generan las filas correspondientes a la página actual. -->
+                    @for (fila of elementosPagina(seccion.hijos); track fila.ruta) {
                         <tr>
-                            @for (columna of columnasPrincipales(seccion.hijos); track columna) {
-                                <th>{{ formarString(columna) }}</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
+                            <!-- Busca el valor de cada columna dentro del registro actual. -->
                             @for (columna of columnasPrincipales(seccion.hijos); track columna) {
                                 <td>{{ valorDeCampo(fila, columna) }}</td>
                             }
+                            <td>
+                                <!-- Abre el objeto completo, incluidos campos anidados, en un MatDialog. -->
+                                <button mat-stroked-button type="button" (click)="abrirDetalle(fila)">Ver detalle</button>
+                            </td>
                         </tr>
-                    </tbody>
-                </table>
+                    }
+                </tbody>
+            </table>
 
-                <!-- Las columnas posteriores a las ocho principales se ocultan en paneles. -->
-                @if (columnasRestantes(seccion.hijos).length > 0) {
-                    @for (columna of columnasRestantes(seccion.hijos); track columna) {
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>{{ formarString(columna) }}</mat-panel-title>
-                            </mat-expansion-panel-header>
-                            <p>{{ valorDeCampo(fila, columna) }}</p>
-                        </mat-expansion-panel>
-                    }
-                }
-            }
-        <!-- Arreglo simple o mixto: índice, resumen y detalle recursivo cuando aplique. -->
+        <!-- Arreglo simple o mixto: se conserva una fila por elemento, pero sin columnas compartidas. -->
         } @else if (seccion.tipo === 'array') {
-            @for (nodo of elementosPagina(seccion.hijos); track nodo.ruta; let indice = $index) {
-                <div class="elemento-arreglo">
-                    <!-- <table class="tabla-json">
-                        <thead><tr><th>#</th><th>Valor</th></tr></thead>
-                        <tbody>
+            <table class="tabla-json">
+                <!-- Índice, resumen y acción opcional para el detalle del elemento. -->
+                <thead><tr><th>#</th><th>Valor</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    <!-- Cada elemento visible se resume para evitar renderizar estructuras completas. -->
+                    @for (nodo of elementosPagina(seccion.hijos); track nodo.ruta; let indice = $index) {
                         <tr>
+                            <!-- El índice se calcula considerando la página actual. -->
                             <td>{{ (pageIndex() * pageSize()) + indice + 1 }}</td>
-                            <td>{{ esValorSimple(nodo) ? mostrarValor(nodo) : formarString(nodo.nombre) }}</td>
+                            <!-- Muestra el valor simple o la cantidad de campos/elementos de un nodo complejo. -->
+                            <td>{{ resumenNodo(nodo) }}</td>
+                            <td>
+                                <!-- Solo los nodos con hijos requieren un diálogo de detalle. -->
+                                @if (!esValorSimple(nodo)) {
+                                    <button mat-stroked-button type="button" (click)="abrirDetalle(nodo)">Ver detalle</button>
+                                } @else {
+                                    <!-- Un valor simple ya está completamente visible en la columna anterior. -->
+                                    —
+                                }
+                            </td>
                         </tr>
-                        </tbody>
-                    </table> -->
-                    @if (!esValorSimple(nodo)) {
-                        <app-json-secciones [arbol]="nodo"></app-json-secciones>
                     }
-                </div>
-            }
-        <!-- Objeto: hasta ocho valores simples en tabla y el resto en paneles. -->
+                </tbody>
+            </table>
+
+        <!-- Objeto: combina sus valores simples en una tabla y deja los anidados en acordeones. -->
         } @else {
+            <!-- La tabla principal contiene hasta los primeros ocho valores simples del objeto. -->
             @if (camposPrincipales(seccion.hijos).length > 0) {
                 <table class="tabla-json">
                     <thead>
                         <tr>
+                            <!-- Cada propiedad simple se vuelve un encabezado. -->
                             @for (nodo of camposPrincipales(seccion.hijos); track nodo.ruta) {
                                 <th>{{ formarString(nodo.nombre) }}</th>
                             }
@@ -74,6 +88,7 @@
                     </thead>
                     <tbody>
                         <tr>
+                            <!-- Los valores se conservan en el mismo orden que sus encabezados. -->
                             @for (nodo of camposPrincipales(seccion.hijos); track nodo.ruta) {
                                 <td>{{ mostrarValor(nodo) }}</td>
                             }
@@ -82,37 +97,44 @@
                 </table>
             }
 
-            @if (camposRestantes(seccion.hijos).length > 0) {
-                @for (nodo of camposRestantes(seccion.hijos); track nodo.ruta) {
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>{{ formarString(nodo.nombre) }}</mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <p><strong>{{ formarString(nodo.nombre) }}:</strong> {{ mostrarValor(nodo) }}</p>
-                    </mat-expansion-panel>
-                }
+            <!-- Los valores simples posteriores a la octava columna se consultan bajo demanda. -->
+            @for (nodo of camposRestantes(seccion.hijos); track nodo.ruta) {
+                <mat-expansion-panel>
+                    <!-- El encabezado identifica el campo oculto. -->
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>{{ formarString(nodo.nombre) }}</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <!-- El panel muestra el valor completo del campo. -->
+                    <p>{{ mostrarValor(nodo) }}</p>
+                </mat-expansion-panel>
             }
 
-            <!-- Los objetos y arreglos hijos conservan su propia representación recursiva. -->
+            <!-- Objetos y arreglos hijos se delegan al mismo componente de forma recursiva. -->
             @for (nodo of seccion.hijos; track nodo.ruta) {
                 @if (!esValorSimple(nodo)) {
                     <mat-expansion-panel>
+                        <!-- El usuario abre solo la estructura anidada que necesita revisar. -->
                         <mat-expansion-panel-header>
                             <mat-panel-title>{{ formarString(nodo.nombre) }}</mat-panel-title>
                         </mat-expansion-panel-header>
+                        <!-- El hijo conserva sus propias reglas de tabla, diálogo y paginación. -->
                         <app-json-secciones [arbol]="nodo"></app-json-secciones>
                     </mat-expansion-panel>
                 }
             }
         }
 
-        <!-- El paginador solo se muestra cuando el arreglo supera el tamaño de página activo. -->
+        <!-- El paginador solo se muestra si el arreglo tiene más elementos que el tamaño de página. -->
         @if (seccion.tipo === 'array' && seccion.hijos.length > pageSize()) {
-            <mat-paginator
+            <mat-paginator>
+                <!-- Total de registros disponibles en el arreglo. -->
                 [length]="seccion.hijos.length"
+                <!-- Índice y tamaño controlados por señales locales de esta instancia. -->
                 [pageIndex]="pageIndex()"
                 [pageSize]="pageSize()"
-                [pageSizeOptions]="[5, 10, 20, 30 , 40, 50, 100]"
+                <!-- Tamaños disponibles para que el usuario ajuste la cantidad de filas visibles. -->
+                [pageSizeOptions]="[5, 10, 20, 30, 40, 50, 100]"
+                <!-- Actualiza las señales al cambiar página o tamaño. -->
                 (page)="cambiarPagina($event)">
             </mat-paginator>
         }

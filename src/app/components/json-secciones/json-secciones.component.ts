@@ -1,7 +1,7 @@
-import {Component,effect,inject,input,signal} from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { JsonNode } from '../../models/json-node';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -19,10 +19,7 @@ export class JsonSeccionesComponent {
     pageIndex = signal(0);
     //Cantidad de elementos por página.
     pageSize = signal(10);
-
-
     /**DIALOG*/
-
     private readonly dialog = inject(MatDialog);
 
     constructor() {
@@ -36,9 +33,9 @@ export class JsonSeccionesComponent {
     formarString(key: string): string {
 
         const withSpaces = key
-            .replace(/([a-z])([A-Z])/g,'$1 $2')
-            .replace(/[\_-]/g,' ');
-            
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/[\_-]/g, ' ');
+
         return withSpaces
             .split(' ')
             .map(
@@ -53,11 +50,9 @@ export class JsonSeccionesComponent {
      * Convierte el valor del nodo a texto.
      */
     mostrarValor(nodo: JsonNode): string {
-
         if (nodo.tipo === 'null') {
             return 'Nulo';
         }
-
         return String(
             nodo.valor ?? ''
         );
@@ -74,10 +69,7 @@ export class JsonSeccionesComponent {
     /**
      * Determina si un nodo realmente contiene información.
      */
-    tieneInformacion(
-        nodo: JsonNode | null | undefined
-    ): boolean {
-
+    tieneInformacion(nodo: JsonNode | null | undefined): boolean {
         if (!nodo) {
             return false;
         }
@@ -112,7 +104,6 @@ export class JsonSeccionesComponent {
         return true;
     }
     // HIJOS CON INFORMACIÓN
-
     /**
         Devuelve únicamente los hijos que realmente contienen
         información.
@@ -185,21 +176,21 @@ export class JsonSeccionesComponent {
         if (!primeraFila || primeraFila.tipo !== 'object') {
             return [];
         }
-        return primeraFila.hijos.filter(campo =>this.esValorSimple(campo) && this.tieneInformacion(campo))
+        return primeraFila.hijos.filter(campo => this.esValorSimple(campo) && this.tieneInformacion(campo))
             .filter(
                 campo => nodos.every(
-                        fila => fila.hijos.some(
-                                valor => valor.nombre === campo.nombre && this.esValorSimple(valor) && this.tieneInformacion(valor)
-                            )
+                    fila => fila.hijos.some(
+                        valor => valor.nombre === campo.nombre && this.esValorSimple(valor) && this.tieneInformacion(valor)
                     )
-            ).map(campo =>campo.nombre);
+                )
+            ).map(campo => campo.nombre);
     }
 
     // COLUMNAS PRINCIPALES
     /**
      * Limita la tabla de un arreglo a ocho columnas.
      */
-    columnasPrincipales( nodos: JsonNode[]): string[] {
+    columnasPrincipales(nodos: JsonNode[]): string[] {
         return this.columnasArreglo(nodos).slice(0, 8);
     }
 
@@ -208,21 +199,21 @@ export class JsonSeccionesComponent {
      * Determina si un arreglo está formado por objetos
      * que comparten campos simples con información.
      */
-    esArregloDeObjetosTabulable( nodos: JsonNode[]): boolean {
-        if (nodos.length === 0 ||!nodos.every(nodo =>nodo.tipo === 'object')) {
+    esArregloDeObjetosTabulable(nodos: JsonNode[]): boolean {
+        if (nodos.length === 0 || !nodos.every(nodo => nodo.tipo === 'object')) {
             return false;
         }
-        return ( this.columnasArreglo(nodos).length > 0);
+        return (this.columnasArreglo(nodos).length > 0);
     }
 
     // VALOR DE CAMPO
     /**
      * Busca un campo dentro de una fila.
      */
-    valorDeCampo(fila: JsonNode,columna: string): string {
+    valorDeCampo(fila: JsonNode, columna: string): string {
         const campo = fila.hijos.find(
-                nodo =>nodo.nombre === columna && this.tieneInformacion(nodo)
-            );
+            nodo => nodo.nombre === columna && this.tieneInformacion(nodo)
+        );
         if (!campo) {
             return '—';
         }
@@ -234,10 +225,10 @@ export class JsonSeccionesComponent {
      * Devuelve únicamente los elementos que contienen información
      * correspondientes a la página actual.
      */
-    elementosPagina( nodos: JsonNode[]): JsonNode[] {
+    elementosPagina(nodos: JsonNode[]): JsonNode[] {
         const nodosValidos = this.hijosConInformacion(nodos);
-        const inicio =this.pageIndex() * this.pageSize();
-        return nodosValidos.slice( inicio,inicio + this.pageSize()
+        const inicio = this.pageIndex() * this.pageSize();
+        return nodosValidos.slice(inicio, inicio + this.pageSize()
         );
     }
     // CAMBIAR PÁGINA
@@ -254,12 +245,12 @@ export class JsonSeccionesComponent {
      * Genera un resumen para los elementos complejos
      * de un arreglo.
      */
-    resumenNodo( nodo: JsonNode): string {
-        if ( this.esValorSimple(nodo)) {
+    resumenNodo(nodo: JsonNode): string {
+        if (this.esValorSimple(nodo)) {
             return this.mostrarValor(nodo);
         }
 
-        const hijosValidos =this.hijosConInformacion(nodo.hijos);
+        const hijosValidos = this.hijosConInformacion(nodo.hijos);
 
         const etiqueta =
             nodo.tipo === 'array'
@@ -272,8 +263,8 @@ export class JsonSeccionesComponent {
     /**
      * Abre el diálogo con el detalle completo de un nodo.
      */
-    async abrirDetalle( nodo: JsonNode): Promise<void> {
-        const {JsonDetalleDialogComponent} = await import('../json-detalle-dialog/json-detalle-dialog.component');
+    async abrirDetalle(nodo: JsonNode): Promise<void> {
+        const { JsonDetalleDialogComponent } = await import('../json-detalle-dialog/json-detalle-dialog.component');
         this.dialog.open(
             JsonDetalleDialogComponent,
             {

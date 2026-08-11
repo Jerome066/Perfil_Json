@@ -59,9 +59,8 @@
                 }
             </tbody>
         </table>
-        <!-- ARREGLO SIMPLE O MIXTO -->
-
-        } @else if (seccion.tipo === 'array') {
+        
+        } @else if (seccion.tipo === 'array') { <!-- ARREGLO SIMPLE O MIXTO -->
             <table class="tabla-json">
                 <thead>
                     <tr>
@@ -92,6 +91,7 @@
             </table>
             <!-- OBJETO -->
         } @else {
+            <!--Tabla para mostrar informacion complementando con acordeon -->
             <!-- CAMPOS PRINCIPALES -->
             @if (camposPrincipales(seccion.hijos).length > 0) {
             <table class="tabla-json">

@@ -7,11 +7,7 @@
         <!-- Los tipos simples no requieren una sección ni un botón de detalle. -->
         @if (!['string', 'number', 'boolean'].includes(nodo.tipo)) {
             <!-- Selecciona el nodo y activa su representación en json-secciones. -->
-            <button
-                mat-flat-button
-                type="button"
-                class="btn-nodo"
-                (click)="informacionNodo(nodo)">
+            <button mat-flat-button type="button" class="btn-nodo" (click)="informacionNodo(nodo)">
                 <!-- Convierte la clave del JSON en una etiqueta legible. -->
                 {{ formarString(nodo.nombre) }}
             </button>
@@ -37,5 +33,6 @@
 <!-- Crea la vista de detalle únicamente cuando el usuario selecciona un nodo navegable. -->
 @if (nodoActual(); as nodo) {
     <!-- Envía el nodo completo para que json-secciones decida cómo representarlo. -->
-    <app-json-secciones [arbol]="nodo"></app-json-secciones>
+    <!-- <app-json-secciones [arbol]="nodo"></app-json-secciones> -->
+    <app-json-tables [arbol]="nodo"></app-json-tables>
 }

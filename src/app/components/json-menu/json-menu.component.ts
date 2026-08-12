@@ -4,9 +4,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { JsonSeccionesComponent } from '../json-secciones/json-secciones.component';
 
+import { JsonTablesComponent } from '../json-tables/json-tables.component';
+
 @Component({
   selector: 'app-json-menu',
-  imports: [MatButtonModule, MatListModule, JsonSeccionesComponent],
+  imports: [MatButtonModule, MatListModule, JsonSeccionesComponent,JsonTablesComponent],
   templateUrl: './json-menu.component.html',
   styleUrl: './json-menu.component.css'
 })

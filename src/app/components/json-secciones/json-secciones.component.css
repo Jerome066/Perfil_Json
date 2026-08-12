@@ -1,33 +1,46 @@
-.json-seccion {
-  margin: 1rem 0;
+/* .titulo-seccion {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 12px 0 6px;
 }
 
-.json-seccion h3 {
-  margin-bottom: .5rem;
+.campos-json {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
 }
 
-.tabla-json {
-  width: 100%;
-  margin: .75rem 0;
-  border-collapse: collapse;
+.campo-json {
+    display: flex;
+    gap: 6px;
 }
 
-.tabla-json th,
-.tabla-json td {
-  padding: .55rem .75rem;
-  text-align: left;
-  border: 1px solid #d8dce2;
+.campo-json strong {
+    min-width: 160px;
+    color: rgba(0, 0, 0, 0.6);
 }
 
-.tabla-json th {
-  background: #f3f5f8;
-  font-weight: 600;
+.seccion-hija {
+    margin-left: 16px;
+    padding-left: 8px;
+    border-left: 2px solid #e0e0e0;
+    margin-bottom: 8px;
 }
 
-mat-expansion-panel {
-  margin-top: .75rem;
+.lista-json {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.elemento-arreglo {
-  margin-bottom: 1rem;
+.elemento-json {
+    padding: 6px 0 6px 8px;
+    border-left: 2px solid #e0e0e0;
 }
+
+.elemento-json-titulo {
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 2px;
+} */

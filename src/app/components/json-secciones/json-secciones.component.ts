@@ -1,107 +1,126 @@
 import { Component, effect, input, signal } from '@angular/core';
 import { JsonNode } from '../../models/json-node';
-import {MatExpansionModule} from '@angular/material/expansion';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
-  selector: 'app-json-secciones',
-  imports: [JsonSeccionesComponent, MatExpansionModule, MatPaginatorModule],
-  templateUrl: './json-secciones.component.html',
-  styleUrl: './json-secciones.component.css'
+    selector: 'app-json-secciones',
+    imports: [JsonSeccionesComponent, MatPaginatorModule],
+    templateUrl: './json-secciones.component.html',
+    styleUrl: './json-secciones.component.css'
 })
 export class JsonSeccionesComponent {
-  /** Nodo seleccionado cuyo contenido se representa de forma recursiva. */
-  arbol = input.required<JsonNode | null>();
 
-  /** Estado local del paginador; cada instancia recursiva administra su propia página. */
-  pageIndex = signal(0);
-  pageSize = signal(10);
+    //Nodo que será representado.
+    arbol = input.required<JsonNode | null>();
+    //Página actual.
+    pageIndex = signal(0);
+    //Cantidad de elementos por página.
+    pageSize = signal(10);
 
-  constructor() {
-    // Al navegar a otro nodo se vuelve a la primera página de sus arreglos.
-    effect(() => {
-      this.arbol();
-      this.pageIndex.set(0);
-    });
-  }
-
-  formarString(key: string): string {
-    const withSpaces = key
-      .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase
-      .replace(/[_-]/g, ' ');               // snake_case / kebab-case
-    return withSpaces
-      .split(' ')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-  }
-
-  mostrarValor(nodo: JsonNode): string {
-    if (nodo.tipo === 'null') return 'Nulo';
-    return String(nodo.valor ?? '');
-  }
-
-  esValorSimple(nodo: JsonNode): boolean {
-    return nodo.hijos.length === 0;
-  }
-
-  columnasArreglo(nodos: JsonNode[]): string[] {
-    return nodos[0]?.hijos.map((nodo) => nodo.nombre) ?? [];
-  }
-
-  /** Propiedades escalares del objeto, separadas de sus objetos y arreglos hijos. */
-  camposSimples(nodos: JsonNode[]): JsonNode[] {
-    return nodos.filter((nodo) => this.esValorSimple(nodo));
-  }
-
-  /** Limita la tabla principal a ocho columnas para conservar una lectura cómoda. */
-  camposPrincipales(nodos: JsonNode[]): JsonNode[] {
-    return this.camposSimples(nodos).slice(0, 8);
-  }
-
-  /** Los campos a partir de la novena columna se muestran en paneles expandibles. */
-  camposRestantes(nodos: JsonNode[]): JsonNode[] {
-    return this.camposSimples(nodos).slice(8);
-  }
-
-  columnasPrincipales(nodos: JsonNode[]): string[] {
-    return this.columnasArreglo(nodos).slice(0, 8);
-  }
-
-  columnasRestantes(nodos: JsonNode[]): string[] {
-    return this.columnasArreglo(nodos).slice(8);
-  }
-
-  /** Verifica que el arreglo pueda mostrarse como una tabla con columnas consistentes. */
-  esArregloDeObjetosUniformes(nodos: JsonNode[]): boolean {
-    if (nodos.length === 0 || !nodos.every((nodo) => nodo.tipo === 'object')) {
-      return false;
+    constructor() {
+        effect(() => {
+            this.arbol();
+            this.pageIndex.set(0);
+        });
     }
 
-    const columnas = this.columnasArreglo(nodos);
-    if (columnas.length === 0 || nodos[0].hijos.some((nodo) => !this.esValorSimple(nodo))) {
-      return false;
+    // FORMATEAR NOMBRES
+    formarString(key: string): string {
+        const withSpaces = key
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/[\_-]/g, ' ');
+
+        return withSpaces
+            .split(' ')
+            .map(
+                word =>
+                    word.charAt(0).toUpperCase()
+                    + word.slice(1)
+            )
+            .join(' ');
     }
 
-    return nodos.every((fila) =>
-      fila.hijos.length === columnas.length &&
-      fila.hijos.every((campo) => this.esValorSimple(campo) && columnas.includes(campo.nombre))
-    );
-  }
+    /**
+     * Convierte el valor del nodo a texto.
+     */
+    mostrarValor(nodo: JsonNode): string {
+        if (nodo.tipo === 'null') {
+            return 'Nulo';
+        }
+        return String(
+            nodo.valor ?? ''
+        );
+    }
 
-  valorDeCampo(fila: JsonNode, columna: string): string {
-    const campo = fila.hijos.find((nodo) => nodo.nombre === columna);
-    return campo ? this.mostrarValor(campo) : '';
-  }
+    /**
+     * Determina si un nodo es un valor simple.
+     * Un nodo sin hijos se considera primitivo.
+     */
+    esValorSimple(nodo: JsonNode): boolean {
+        return nodo.hijos.length === 0;
+    }
 
-  /** Obtiene únicamente los elementos visibles de la página activa. */
-  elementosPagina(nodos: JsonNode[]): JsonNode[] {
-    const inicio = this.pageIndex() * this.pageSize();
-    return nodos.slice(inicio, inicio + this.pageSize());
-  }
+    /**
+     * Determina si un nodo realmente contiene información.
+     */
+    tieneInformacion(nodo: JsonNode | null | undefined): boolean {
+        if (!nodo) {
+            return false;
+        }
+        if (nodo.hijos && nodo.hijos.length > 0) {
+            return nodo.hijos.some(
+                hijo => this.tieneInformacion(hijo)
+            );
+        }
+        const valor = nodo.valor;
+        if (valor === undefined || valor === null) {
+            return false;
+        }
+        if (typeof valor === 'string') {
+            return valor.trim().length > 0;
+        }
+        if (Array.isArray(valor)) {
+            return valor.length > 0;
+        }
+        if (typeof valor === 'object') {
+            return Object.keys(valor).length > 0;
+        }
+        return true;
+    }
 
-  /** Sincroniza el estado local con las acciones del componente MatPaginator. */
-  cambiarPagina(evento: PageEvent): void {
-    this.pageIndex.set(evento.pageIndex);
-    this.pageSize.set(evento.pageSize);
-  }
+    /**
+     * Devuelve únicamente los hijos que realmente contienen información.
+     * Especialmente importante para los arreglos.
+     */
+    hijosConInformacion(nodos: JsonNode[]): JsonNode[] {
+        return nodos.filter(
+            nodo => this.tieneInformacion(nodo)
+        );
+    }
+
+    /**
+     * Obtiene los campos simples con información de un objeto.
+     */
+    camposSimples(nodos: JsonNode[]): JsonNode[] {
+        return nodos.filter(
+            nodo => this.esValorSimple(nodo) && this.tieneInformacion(nodo)
+        );
+    }
+
+    /**
+     * Devuelve únicamente los elementos con información
+     * correspondientes a la página actual.
+     */
+    elementosPagina(nodos: JsonNode[]): JsonNode[] {
+        const nodosValidos = this.hijosConInformacion(nodos);
+        const inicio = this.pageIndex() * this.pageSize();
+        return nodosValidos.slice(inicio, inicio + this.pageSize());
+    }
+
+    // CAMBIAR PÁGINA
+    cambiarPagina(evento: PageEvent): void {
+        this.pageIndex.set(evento.pageIndex);
+        this.pageSize.set(evento.pageSize);
+    }
+
 }

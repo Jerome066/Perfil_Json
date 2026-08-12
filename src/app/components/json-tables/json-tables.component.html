@@ -1,0 +1,140 @@
+@if (arbol(); as seccion) {
+    @if (tieneInformacion(seccion)) {
+        @if (!seccion.nombre.includes('[')) {
+        <div class="titulo-seccion">
+            {{ formarString(seccion.nombre) }}
+        </div>
+        }
+    }
+    <!-- NODO PRIMITIVO -->
+        @if (esValorSimple(seccion)) {
+        <table class="tabla-json">
+            <thead>
+                <tr>
+                    <th>
+                        {{ formarString(seccion.nombre) }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        {{ mostrarValor(seccion) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- Tabla principal para mostrar la información con la opcion de mostrar toda la informacion en un dialog -->
+        <!-- ARREGLO DE OBJETOS TABULABLE -->
+        } @else if (seccion.tipo === 'array' && esArregloDeObjetosTabulable(hijosConInformacion(seccion.hijos))) {
+        <table class="tabla-json">
+            <thead>
+                <tr>
+                    @for (columna of columnasPrincipales(hijosConInformacion(seccion.hijos));track columna) {
+                    <th>
+                        <!-- @if (!formarString(columna).toUpperCase().includes("ID")) {
+                            {{ formarString(columna) }} 
+                        } -->
+                        {{ formarString(columna) }} 
+                    </th>
+                    }
+                    <th>
+                        Detalle
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (fila of elementosPagina(hijosConInformacion(seccion.hijos));track fila.ruta) {
+                <tr>
+                    @for ( columna of columnasPrincipales(hijosConInformacion(seccion.hijos));track columna) {
+                    <td>
+                        {{ valorDeCampo(fila, columna) }}
+                    </td>
+                    }
+                    <td>
+                        @if (tieneInformacion(fila)) {
+                        <button mat-stroked-button type="button" (click)="abrirDetalle(fila)">
+                            Ver detalle
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    } @else if (seccion.tipo === 'array') { <!-- ARREGLO SIMPLE O MIXTO -->
+            <table class="tabla-json">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Valor</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (nodo of elementosPagina( hijosConInformacion(seccion.hijos));track nodo.ruta; let indice = $index) {
+                    <tr>
+                        <td>
+                            {{(pageIndex() * pageSize()) + indice + 1}}
+                        </td>
+                        <td>
+                            {{ resumenNodo(nodo) }}
+                        </td>
+                        <td>
+                            @if (!esValorSimple(nodo)) {
+                            <button mat-button type="button" (click)="abrirDetalle(nodo)"> Ver detalle</button>
+                            } @else {
+                            —
+                            }
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- OBJETO -->
+        } @else {
+            <!-- CAMPOS PRINCIPALES -->
+            <!-- Tabla para mostrar la informacion de 1 registro en el JSON -->
+            @if (camposPrincipales(seccion.hijos).length > 0) {
+            <table class="tabla-json">
+                <thead>
+                    <tr>
+                        @for (nodo of camposPrincipales( seccion.hijos);track nodo.ruta) {
+                        <th>
+                            @if (!formarString(nodo.nombre).toUpperCase().includes("ID")) {
+                                {{ formarString(nodo.nombre) }}
+                            }
+                            {{ formarString(nodo.nombre) }}
+                        </th>
+                        }
+                        <th>
+                            Ver detalles
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @for ( nodo of camposPrincipales(seccion.hijos);track nodo.ruta) {
+                            <td>
+                                {{ mostrarValor(nodo) }}
+                            </td>
+                        }
+                        <td>
+                            <button mat-button type="button" (click)="abrirDetalle(seccion)"> Ver detalle</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            }
+            
+        }
+        
+
+    <!-- PAGINADOR -->
+        @if ( seccion.tipo === 'array' && hijosConInformacion(seccion.hijos).length > pageSize()) {
+            <mat-paginator [length]="hijosConInformacion(seccion.hijos).length" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
+            </mat-paginator>
+        }
+}
+

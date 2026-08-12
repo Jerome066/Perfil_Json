@@ -1,100 +1,159 @@
-.barra-nodos{
-    display:flex;
-    align-items:center;
-    gap:0;
-    overflow-x:auto;
-    padding:18px;
-    background:#f4f6fb;
-    border-radius:18px;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-    scrollbar-width:thin;
-}
+/* ===========================
+   Barra de navegación
+=========================== */
 
-/* Scroll bonito (Chrome) */
-.barra-nodos::-webkit-scrollbar{
-    height:8px;
-}
+.barra-nodos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 
-.barra-nodos::-webkit-scrollbar-thumb{
-    background:#c7c7c7;
-    border-radius:20px;
-}
+    overflow-x: auto;
+    overflow-y: hidden;
 
-.barra-nodos::-webkit-scrollbar-track{
-    background:transparent;
-}
+    padding: 10px 12px;
+    margin-bottom: 20px;
 
-.btn-nodo{
-    min-width:180px;
-    height:80px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-
-    padding:16px;
-    margin:0;
-
-    background:white !important;
-    color:#5b5b5b !important;
-
-    border:none;
-    border-right:1px solid #ececec;
-
-    border-radius:0 !important;
-
-    box-shadow:none !important;
-
-    font-size:15px;
-    font-weight:500;
-
-    transition:.25s ease;
-}
-
-.btn-nodo:first-child{
-    border-radius:14px 0 0 14px !important;
-}
-
-.btn-nodo:last-child{
-    border-radius:0 14px 14px 0 !important;
-    border-right:none;
-}
-
-.btn-nodo:hover{
-    background:#f8fbff !important;
-    color:#1565c0 !important;
-}
-
-.btn-nodo.activo{
-
-    background:white !important;
-
-    color:#1565c0 !important;
-    font-weight:600;
-
-    transform:translateY(-10px);
-
-    border-radius:14px !important;
+    background: #ffffff;
+    border-radius: 18px;
 
     box-shadow:
-        0 10px 24px rgba(0,0,0,.12);
+        0 4px 15px rgba(0, 0, 0, 0.08),
+        0 1px 4px rgba(0, 0, 0, 0.04);
 
-    position:relative;
-    z-index:2;
+    scrollbar-width: thin;
+    scrollbar-color: #c5c5c5 transparent;
 }
 
-.btn-nodo.activo::before{
+/* Scroll para Chrome */
 
-    content:"";
-    position:absolute;
+.barra-nodos::-webkit-scrollbar {
+    height: 8px;
+}
 
-    top:0;
-    left:0;
-    right:0;
+.barra-nodos::-webkit-scrollbar-track {
+    background: transparent;
+}
 
-    height:4px;
-    background:#1565c0;
+.barra-nodos::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 10px;
+}
 
-    border-radius:14px 14px 0 0;
+.barra-nodos::-webkit-scrollbar-thumb:hover {
+    background: #9e9e9e;
+}
+
+
+/* ===========================
+   Botones
+=========================== */
+
+.btn-nodo {
+
+    position: relative;
+
+    flex-shrink: 0;
+
+    min-width: max-content;
+
+    padding: 16px 24px;
+
+    border: none !important;
+    border-radius: 14px !important;
+
+    background: transparent !important;
+
+    color: #4b5563 !important;
+
+    font-size: 15px;
+    font-weight: 500;
+    text-transform: none !important;
+
+    box-shadow: none !important;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        transform .2s ease;
+}
+
+
+/* Hover */
+
+.btn-nodo:hover {
+
+    background: #f5f7fb !important;
+
+    color: #1565c0 !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* Línea inferior */
+
+.btn-nodo::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 20px;
+    right: 20px;
+    bottom: 6px;
+
+    height: 3px;
+
+    border-radius: 10px;
+
+    background: #1976d2;
+
+    transform: scaleX(0);
+
+    transition: transform .25s ease;
+}
+
+
+/* Botón activo */
+
+.btn-nodo.activo {
+
+    background: #edf4ff !important;
+
+    color: #1565c0 !important;
+
+    font-weight: 600;
+}
+
+.btn-nodo.activo::after {
+
+    transform: scaleX(1);
+}
+
+
+/* Click */
+
+.btn-nodo:active {
+
+    transform: scale(.98);
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+
+    .barra-nodos {
+
+        padding: 8px;
+        gap: 4px;
+    }
+
+    .btn-nodo {
+
+        padding: 14px 18px;
+
+        font-size: 14px;
+    }
+
 }

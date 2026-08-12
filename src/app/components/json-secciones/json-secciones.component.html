@@ -1,118 +1,70 @@
 @if (arbol(); as seccion) {
-    <section class="json-seccion">
-        <h3>{{ formarString(seccion.nombre) }}</h3>
-        <!-- Valor aislado: una tabla de una sola columna. -->
-        @if (seccion.hijos.length === 0) {
-            <table class="tabla-json">
-                <thead><tr><th>{{ formarString(seccion.nombre) }}</th></tr></thead>
-                <tbody>
-                    <tr><td>{{ mostrarValor(seccion) }}</td></tr>
-                </tbody>
-            </table>
-        <!-- Arreglo de objetos con la misma estructura: una tabla por registro. -->
-        } @else if (seccion.tipo === 'array' && esArregloDeObjetosUniformes(seccion.hijos)) {
-            @for (fila of elementosPagina(seccion.hijos); track fila.ruta) {
-                <table class="tabla-json">
-                    <thead>
-                        <tr>
-                            @for (columna of columnasPrincipales(seccion.hijos); track columna) {
-                                <th>{{ formarString(columna) }}</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            @for (columna of columnasPrincipales(seccion.hijos); track columna) {
-                                <td>{{ valorDeCampo(fila, columna) }}</td>
-                            }
-                        </tr>
-                    </tbody>
-                </table>
 
-                <!-- Las columnas posteriores a las ocho principales se ocultan en paneles. -->
-                @if (columnasRestantes(seccion.hijos).length > 0) {
-                    @for (columna of columnasRestantes(seccion.hijos); track columna) {
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>{{ formarString(columna) }}</mat-panel-title>
-                            </mat-expansion-panel-header>
-                            <p>{{ valorDeCampo(fila, columna) }}</p>
-                        </mat-expansion-panel>
-                    }
-                }
-            }
-        <!-- Arreglo simple o mixto: índice, resumen y detalle recursivo cuando aplique. -->
-        } @else if (seccion.tipo === 'array') {
-            @for (nodo of elementosPagina(seccion.hijos); track nodo.ruta; let indice = $index) {
-                <div class="elemento-arreglo">
-                    <!-- <table class="tabla-json">
-                        <thead><tr><th>#</th><th>Valor</th></tr></thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ (pageIndex() * pageSize()) + indice + 1 }}</td>
-                            <td>{{ esValorSimple(nodo) ? mostrarValor(nodo) : formarString(nodo.nombre) }}</td>
-                        </tr>
-                        </tbody>
-                    </table> -->
-                    @if (!esValorSimple(nodo)) {
-                        <app-json-secciones [arbol]="nodo"></app-json-secciones>
-                    }
-                </div>
-            }
-        <!-- Objeto: hasta ocho valores simples en tabla y el resto en paneles. -->
-        } @else {
-            @if (camposPrincipales(seccion.hijos).length > 0) {
-                <table class="tabla-json">
-                    <thead>
-                        <tr>
-                            @for (nodo of camposPrincipales(seccion.hijos); track nodo.ruta) {
-                                <th>{{ formarString(nodo.nombre) }}</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            @for (nodo of camposPrincipales(seccion.hijos); track nodo.ruta) {
-                                <td>{{ mostrarValor(nodo) }}</td>
-                            }
-                        </tr>
-                    </tbody>
-                </table>
-            }
+    @if (tieneInformacion(seccion)) {
 
-            @if (camposRestantes(seccion.hijos).length > 0) {
-                @for (nodo of camposRestantes(seccion.hijos); track nodo.ruta) {
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>{{ formarString(nodo.nombre) }}</mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <p><strong>{{ formarString(nodo.nombre) }}:</strong> {{ mostrarValor(nodo) }}</p>
-                    </mat-expansion-panel>
-                }
-            }
-
-            <!-- Los objetos y arreglos hijos conservan su propia representación recursiva. -->
-            @for (nodo of seccion.hijos; track nodo.ruta) {
-                @if (!esValorSimple(nodo)) {
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>{{ formarString(nodo.nombre) }}</mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <app-json-secciones [arbol]="nodo"></app-json-secciones>
-                    </mat-expansion-panel>
-                }
-            }
+        <!-- Nombre de la sección -->
+        @if (!seccion.nombre.includes('[')) {
+        <div class="titulo-seccion">
+            {{ formarString(seccion.nombre) }}
+        </div>
         }
 
-        <!-- El paginador solo se muestra cuando el arreglo supera el tamaño de página activo. -->
-        @if (seccion.tipo === 'array' && seccion.hijos.length > pageSize()) {
-            <mat-paginator
-                [length]="seccion.hijos.length"
-                [pageIndex]="pageIndex()"
-                [pageSize]="pageSize()"
-                [pageSizeOptions]="[5, 10, 20, 30 , 40, 50, 100]"
-                (page)="cambiarPagina($event)">
+        <!-- VALOR SIMPLE -->
+        @if (esValorSimple(seccion)) {
+        <div class="campo-json">
+            <strong>{{ formarString(seccion.nombre) }}:</strong>
+            <span>{{ mostrarValor(seccion) }}</span>
+        </div>
+
+        <!-- ARREGLO -->
+        } @else if (seccion.tipo === 'array') {
+        <div class="lista-json">
+            @for (nodo of elementosPagina(hijosConInformacion(seccion.hijos)); track nodo.ruta; let indice = $index) {
+            <div class="elemento-json">
+                <div class="elemento-json-titulo">
+                    #{{ (pageIndex() * pageSize()) + indice + 1 }}
+                </div>
+
+                @if (esValorSimple(nodo)) {
+                <span>{{ mostrarValor(nodo) }}</span>
+                } @else {
+                <app-json-secciones [arbol]="nodo"></app-json-secciones>
+                }
+            </div>
+            }
+        </div>
+
+        <!-- PAGINADOR -->
+        @if (hijosConInformacion(seccion.hijos).length > pageSize()) {
+            <mat-paginator [length]="hijosConInformacion(seccion.hijos).length" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
             </mat-paginator>
         }
-    </section>
+
+        <!-- OBJETO -->
+        } @else {
+
+            <!-- CAMPOS SIMPLES -->
+            @if (camposSimples(seccion.hijos).length > 0) {
+            <div class="campos-json">
+                @for (nodo of camposSimples(seccion.hijos); track nodo.ruta) {
+                <div class="campo-json">
+                    <strong>{{ formarString(nodo.nombre) }}:</strong>
+                    <span>{{ mostrarValor(nodo) }}</span>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- OBJETOS Y ARREGLOS HIJOS -->
+            @for (nodo of seccion.hijos; track nodo.ruta) {
+                @if (!esValorSimple(nodo) && tieneInformacion(nodo)) {
+                <div class="seccion-hija">
+                    <app-json-secciones [arbol]="nodo"></app-json-secciones>
+                </div>
+                }
+            }
+        }
+    }
+
 }

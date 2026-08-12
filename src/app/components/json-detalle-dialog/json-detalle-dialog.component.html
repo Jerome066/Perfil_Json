@@ -1,0 +1,14 @@
+<!-- Título fijo de la ventana emergente abierta desde una fila de la tabla. -->
+<h2 mat-dialog-title>Detalle del registro</h2>
+
+<!-- Área desplazable que contiene la representación completa del nodo seleccionado. -->
+<mat-dialog-content>
+  <!-- Reutiliza el renderizador principal para mostrar campos, arreglos y objetos anidados. -->
+  <app-json-secciones [arbol]="nodo"></app-json-secciones>
+</mat-dialog-content>
+
+<!-- Acción única para cerrar el diálogo y regresar a la tabla principal. -->
+<mat-dialog-actions align="end">
+  <!-- mat-dialog-close cierra la ventana sin modificar el registro original. -->
+  <button mat-button mat-dialog-close type="button">Cerrar</button>
+</mat-dialog-actions>

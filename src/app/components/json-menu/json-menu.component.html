@@ -1,24 +1,28 @@
-<!-- Valores simples: se muestran directamente; objetos, arreglos y null: se navegan con un botón. -->
-<!-- Barra superior -->
+<!-- Los valores simples se muestran directamente; los nodos complejos se navegan desde la barra. -->
+
+<!-- Barra de navegación para objetos, arreglos y valores null del segundo nivel. -->
 <div class="barra-nodos">
+    <!-- Recorre los nodos usando ruta como identificador estable para el seguimiento de Angular. -->
     @for (nodo of arbol(); track nodo.ruta) {
+        <!-- Los tipos simples no requieren una sección ni un botón de detalle. -->
         @if (!['string', 'number', 'boolean'].includes(nodo.tipo)) {
-            <button
-                mat-flat-button
-                type="button"
-                class="btn-nodo"
-                (click)="informacionNodo(nodo)">
+            <!-- Selecciona el nodo y activa su representación en json-secciones. -->
+            <button mat-flat-button type="button" class="btn-nodo" (click)="informacionNodo(nodo)">
+                <!-- Convierte la clave del JSON en una etiqueta legible. -->
                 {{ formarString(nodo.nombre) }}
             </button>
         }
     }
 </div>
-
-<!-- Lista de datos -->
+ 
+<!-- Lista exclusiva para las propiedades simples del segundo nivel. -->
 <mat-list role="list">
+    <!-- Recorre los mismos nodos para separar datos directos de nodos navegables. -->
     @for (nodo of arbol(); track nodo.ruta) {
+        <!-- Solo muestra texto para string, number y boolean. -->
         @if (['string', 'number', 'boolean'].includes(nodo.tipo)) {
             <mat-list-item role="listitem">
+                <!-- Etiqueta transformada y valor original de la propiedad. -->
                 <strong>{{ formarString(nodo.nombre) }}:</strong>
                 &nbsp;{{ nodo.valor }}
             </mat-list-item>
@@ -26,7 +30,9 @@
     }
 </mat-list>
 
-<!-- Solo se crea la sección de detalle después de seleccionar un nodo navegable. -->
+<!-- Crea la vista de detalle únicamente cuando el usuario selecciona un nodo navegable. -->
 @if (nodoActual(); as nodo) {
-    <app-json-secciones [arbol]="nodo"></app-json-secciones>
+    <!-- Envía el nodo completo para que json-secciones decida cómo representarlo. -->
+    <!-- <app-json-secciones [arbol]="nodo"></app-json-secciones> -->
+    <app-json-tables [arbol]="nodo"></app-json-tables>
 }

@@ -3,11 +3,10 @@ import { JsonNode } from '../../models/json-node';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
-import { JsonSeccionesComponent } from '../json-secciones/json-secciones.component';
 
 @Component({
   selector: 'app-json-tables',
-  imports: [MatPaginatorModule, MatButtonModule,JsonSeccionesComponent],
+  imports: [MatPaginatorModule, MatButtonModule],
   templateUrl: './json-tables.component.html',
   styleUrl: './json-tables.component.css'
 })
@@ -19,6 +18,9 @@ export class JsonTablesComponent {
   pageIndex = signal(0);
   //Cantidad de elementos por página.
   pageSize = signal(10);
+  //Botones para avanzar a la primera y ultima pagina
+  showFirstLastButtons = true;
+  disabled = false;
   /**DIALOG*/
   private readonly dialog = inject(MatDialog);
 
@@ -94,24 +96,22 @@ export class JsonTablesComponent {
     const columnas = new Set<string>();
 
     for (const nodo of nodos) {
+      if (nodo.tipo !== 'object') {
+        continue;
+      }
 
-        if (nodo.tipo !== 'object') {
-            continue;
+      for (const campo of nodo.hijos) {
+        if (
+          this.esValorSimple(campo) &&
+          this.tieneInformacion(campo)
+        ) {
+          columnas.add(campo.nombre);
         }
-
-        for (const campo of nodo.hijos) {
-
-            if (
-                this.esValorSimple(campo) &&
-                this.tieneInformacion(campo)
-            ) {
-                columnas.add(campo.nombre);
-            }
-        }
+      }
     }
 
     return Array.from(columnas);
-}
+  }
 
   // ELEMENTOS VISIBLES DE UNA PÁGINA
   /**
@@ -225,22 +225,22 @@ export class JsonTablesComponent {
     return false;
   }
   // CAMPOS RESTANTES
-    /**
-     * Obtiene los campos simples después de los primeros ocho.
-     *
-     * Estos campos se muestran dentro del panel "Información".
-     */
-    camposRestantes(nodos: JsonNode[]): JsonNode[] {
-        return this.camposSimples(nodos).slice(8);
-    }
+  /**
+   * Obtiene los campos simples después de los primeros ocho.
+   *
+   * Estos campos se muestran dentro del panel "Información".
+   */
+  camposRestantes(nodos: JsonNode[]): JsonNode[] {
+    return this.camposSimples(nodos).slice(8);
+  }
 
-tieneHijosComplejos(nodo: JsonNode): boolean {
+  tieneHijosComplejos(nodo: JsonNode): boolean {
     return nodo.hijos.some(
-        hijo =>
-            !this.esValorSimple(hijo) &&
-            this.tieneInformacion(hijo)
+      hijo =>
+        !this.esValorSimple(hijo) &&
+        this.tieneInformacion(hijo)
     );
-}
+  }
 
   //////////////////////////////////////
   // FORMATEAR NOMBRES

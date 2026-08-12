@@ -101,9 +101,9 @@
                     <tr>
                         @for (nodo of camposPrincipales( seccion.hijos);track nodo.ruta) {
                         <th>
-                            @if (!formarString(nodo.nombre).toUpperCase().includes("ID")) {
-                                {{ formarString(nodo.nombre) }}
-                            }
+                            <!-- @if (!formarString(nodo.nombre).toUpperCase().includes("ID")) { -->
+                                <!-- {{ formarString(nodo.nombre) }} -->
+                            <!-- } -->
                             {{ formarString(nodo.nombre) }}
                         </th>
                         }
@@ -132,8 +132,10 @@
 
     <!-- PAGINADOR -->
         @if ( seccion.tipo === 'array' && hijosConInformacion(seccion.hijos).length > pageSize()) {
-            <mat-paginator [length]="hijosConInformacion(seccion.hijos).length" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
-                [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
+            <mat-paginator [length]="hijosConInformacion(seccion.hijos).length" 
+                            [showFirstLastButtons]="showFirstLastButtons"
+                            [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                            [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
             </mat-paginator>
         }
 }

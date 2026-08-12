@@ -3,10 +3,11 @@ import { JsonNode } from '../../models/json-node';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
+import { JsonSeccionesComponent } from '../json-secciones/json-secciones.component';
 
 @Component({
   selector: 'app-json-tables',
-  imports: [MatPaginatorModule, MatButtonModule],
+  imports: [MatPaginatorModule, MatButtonModule,JsonSeccionesComponent],
   templateUrl: './json-tables.component.html',
   styleUrl: './json-tables.component.css'
 })
@@ -89,19 +90,28 @@ export class JsonTablesComponent {
   }
 
   columnasArreglo(nodos: JsonNode[]): string[] {
-    const primeraFila = nodos[0];
-    if (!primeraFila || primeraFila.tipo !== 'object') {
-      return [];
+
+    const columnas = new Set<string>();
+
+    for (const nodo of nodos) {
+
+        if (nodo.tipo !== 'object') {
+            continue;
+        }
+
+        for (const campo of nodo.hijos) {
+
+            if (
+                this.esValorSimple(campo) &&
+                this.tieneInformacion(campo)
+            ) {
+                columnas.add(campo.nombre);
+            }
+        }
     }
-    return primeraFila.hijos.filter(campo => this.esValorSimple(campo) && this.tieneInformacion(campo))
-      .filter(
-        campo => nodos.every(
-          fila => fila.hijos.some(
-            valor => valor.nombre === campo.nombre && this.esValorSimple(valor) && this.tieneInformacion(valor)
-          )
-        )
-      ).map(campo => campo.nombre);
-  }
+
+    return Array.from(columnas);
+}
 
   // ELEMENTOS VISIBLES DE UNA PÁGINA
   /**
@@ -140,7 +150,7 @@ export class JsonTablesComponent {
         data: nodo,
         width: '1000px',
         maxWidth: '95vw',
-        maxHeight: '85vh',
+        maxHeight: '100vh',
         autoFocus: false
       }
     );
@@ -224,7 +234,13 @@ export class JsonTablesComponent {
         return this.camposSimples(nodos).slice(8);
     }
 
-
+tieneHijosComplejos(nodo: JsonNode): boolean {
+    return nodo.hijos.some(
+        hijo =>
+            !this.esValorSimple(hijo) &&
+            this.tieneInformacion(hijo)
+    );
+}
 
   //////////////////////////////////////
   // FORMATEAR NOMBRES

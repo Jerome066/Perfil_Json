@@ -115,9 +115,9 @@
                 <tbody>
                     <tr>
                         @for ( nodo of camposPrincipales(seccion.hijos);track nodo.ruta) {
-                        <td>
-                            {{ mostrarValor(nodo) }}
-                        </td>
+                            <td>
+                                {{ mostrarValor(nodo) }}
+                            </td>
                         }
                         <td>
                             <button mat-button type="button" (click)="abrirDetalle(seccion)"> Ver detalle</button>
@@ -126,22 +126,9 @@
                 </tbody>
             </table>
             }
+            
         }
-        @if (tieneInformacionAdicional(seccion)) {
-            <table>
-                <thead>
-                    <th>
-                        Ver detalles
-                    </th>
-                </thead>
-                <tbody>
-                    <td>
-                        <button mat-button type="button" (click)="abrirDetalle(seccion)"> Ver detalle</button>
-                        <!-- <app-json-tables [arbol]="seccion"></app-json-tables> -->
-                    </td>
-                </tbody>
-            </table>
-        }
+        
 
     <!-- PAGINADOR -->
         @if ( seccion.tipo === 'array' && hijosConInformacion(seccion.hijos).length > pageSize()) {
@@ -150,3 +137,4 @@
             </mat-paginator>
         }
 }
+

@@ -1,157 +1,69 @@
 @if (arbol(); as seccion) {
 
     @if (tieneInformacion(seccion)) {
-    <!-- Nombre de la sección -->
+
+        <!-- Nombre de la sección -->
         @if (!seccion.nombre.includes('[')) {
         <div class="titulo-seccion">
             {{ formarString(seccion.nombre) }}
         </div>
         }
-        <!-- NODO PRIMITIVO -->
+
+        <!-- VALOR SIMPLE -->
         @if (esValorSimple(seccion)) {
-        <table class="tabla-json">
-            <thead>
-                <tr>
-                    <th>
-                        {{ formarString(seccion.nombre) }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        {{ mostrarValor(seccion) }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <!-- ARREGLO DE OBJETOS TABULABLE -->
-        } @else if (seccion.tipo === 'array' &&esArregloDeObjetosTabulable(hijosConInformacion(seccion.hijos))) {
-        <table class="tabla-json">
-            <thead>
-                <tr>
-                    @for (columna of columnasPrincipales(hijosConInformacion(seccion.hijos));track columna) {
-                    <th>
-                        {{ formarString(columna) }}
-                    </th>
-                    }
-                    <th>
-                        Detalle
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (fila of elementosPagina(hijosConInformacion(seccion.hijos));track fila.ruta) {
-                <tr>
-                    @for ( columna of columnasPrincipales(hijosConInformacion(seccion.hijos));track columna) {
-                    <td>
-                        {{ valorDeCampo(fila, columna) }}
-                    </td>
-                    }
-                    <td>
-                        @if (tieneInformacion(fila)) {
-                        <button mat-stroked-button type="button" (click)="abrirDetalle(fila)">
-                            Ver detalle
-                        </button>
-                        }
-                    </td>
-                </tr>
+        <div class="campo-json">
+            <strong>{{ formarString(seccion.nombre) }}:</strong>
+            <span>{{ mostrarValor(seccion) }}</span>
+        </div>
+
+        <!-- ARREGLO -->
+        } @else if (seccion.tipo === 'array') {
+        <div class="lista-json">
+            @for (nodo of elementosPagina(hijosConInformacion(seccion.hijos)); track nodo.ruta; let indice = $index) {
+            <div class="elemento-json">
+                <div class="elemento-json-titulo">
+                    #{{ (pageIndex() * pageSize()) + indice + 1 }}
+                </div>
+
+                @if (esValorSimple(nodo)) {
+                <span>{{ mostrarValor(nodo) }}</span>
+                } @else {
+                <app-json-secciones [arbol]="nodo"></app-json-secciones>
                 }
-            </tbody>
-        </table>
-        
-        } @else if (seccion.tipo === 'array') { <!-- ARREGLO SIMPLE O MIXTO -->
-            <table class="tabla-json">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Valor</th>
-                        <th>Detalle</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (nodo of elementosPagina( hijosConInformacion(seccion.hijos));track nodo.ruta; let indice = $index) {
-                    <tr>
-                        <td>
-                            {{(pageIndex() * pageSize()) + indice + 1}}
-                        </td>
-                        <td>
-                            {{ resumenNodo(nodo) }}
-                        </td>
-                        <td>
-                            @if (!esValorSimple(nodo)) {
-                            <button mat-stroked-button type="button" (click)="abrirDetalle(nodo)"> Ver detalle</button>
-                            } @else {
-                            —
-                            }
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-            <!-- OBJETO -->
-        } @else {
-            <!--Tabla para mostrar informacion complementando con acordeon -->
-            <!-- CAMPOS PRINCIPALES -->
-            @if (camposPrincipales(seccion.hijos).length > 0) {
-            <table class="tabla-json">
-                <thead>
-                    <tr>
-                        @for (nodo of camposPrincipales( seccion.hijos);track nodo.ruta) {
-                        <th>
-                            {{ formarString(nodo.nombre) }}
-                        </th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        @for ( nodo of camposPrincipales(seccion.hijos);track nodo.ruta) {
-                        <td>
-                            {{ mostrarValor(nodo) }}
-                        </td>
-                        }
-                    </tr>
-                </tbody>
-            </table>
+            </div>
             }
-            <!-- INFORMACIÓN ADICIONAL -->
-            @if (tieneInformacionAdicional(seccion)) {
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Información
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <!-- CAMPOS RESTANTES -->
-                    @for ( nodo of camposRestantes(seccion.hijos);track nodo.ruta) {
-                        @if (tieneInformacion(nodo)) {
-                            <div class="campo-json">
-                                <strong>
-                                    {{ formarString(nodo.nombre) }}:
-                                </strong>
-                                <span>
-                                    {{ mostrarValor(nodo) }}
-                                </span>
-                            </div>
-                        }
-                    }
-                    <!-- OBJETOS Y ARREGLOS HIJOS -->
-                    @for ( nodo of seccion.hijos; track nodo.ruta) {
-                        @if (!esValorSimple(nodo) && tieneInformacion(nodo)) {
-                        <div class="seccion-hija">
-                            <app-json-secciones [arbol]="nodo"></app-json-secciones>
-                        </div>
-                        }
-                    }
-                </mat-expansion-panel>
-            }
-        }
+        </div>
+
         <!-- PAGINADOR -->
-        @if ( seccion.tipo === 'array' && hijosConInformacion(seccion.hijos).length > pageSize()) {
+        @if (hijosConInformacion(seccion.hijos).length > pageSize()) {
             <mat-paginator [length]="hijosConInformacion(seccion.hijos).length" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
                 [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
             </mat-paginator>
+        }
+
+        <!-- OBJETO -->
+        } @else {
+
+            <!-- CAMPOS SIMPLES -->
+            @if (camposSimples(seccion.hijos).length > 0) {
+            <div class="campos-json">
+                @for (nodo of camposSimples(seccion.hijos); track nodo.ruta) {
+                <div class="campo-json">
+                    <strong>{{ formarString(nodo.nombre) }}:</strong>
+                    <span>{{ mostrarValor(nodo) }}</span>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- OBJETOS Y ARREGLOS HIJOS -->
+            @for (nodo of seccion.hijos; track nodo.ruta) {
+                @if (!esValorSimple(nodo) && tieneInformacion(nodo)) {
+                <div class="seccion-hija">
+                    <app-json-secciones [arbol]="nodo"></app-json-secciones>
+                </div>
+                }
+            }
         }
     }
 

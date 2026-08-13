@@ -1,0 +1,103 @@
+
+@if (arbol(); as seccion) {
+
+    @if (tieneInformacion(seccion)) {
+        @if (!seccion.nombre.includes('[')) {
+        <div class="titulo-seccion">
+            {{ formarString(seccion.nombre) }}
+        </div>
+        }
+    }
+<div class="contenedor-tarjetas">
+    <!-- NODO PRIMITIVO -->
+    @if (esValorSimple(seccion)) {
+    <mat-card class="tarjeta-json" appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>{{ formarString(seccion.nombre) }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            {{ mostrarValor(seccion) }}
+        </mat-card-content>
+    </mat-card>
+
+    <!-- ARREGLO DE OBJETOS TABULABLE -->
+    } @else if (seccion.tipo === 'array' && esArregloDeObjetosTabulable(hijosConInformacion(seccion.hijos))) {
+    <div class="grid-json">
+        @for (fila of elementosPagina(hijosConInformacion(seccion.hijos)); track fila.ruta) {
+        <mat-card class="tarjeta-json" appearance="outlined">
+            <mat-card-content>
+                @for (columna of columnasPrincipales(hijosConInformacion(seccion.hijos)); track columna) {
+                <div class="campo-json">
+                    <strong>{{ formarString(columna) }}:</strong>
+                    <span>{{ valorDeCampo(fila, columna) }}</span>
+                </div>
+                }
+            </mat-card-content>
+            @if (tieneInformacion(fila)) {
+            <mat-card-actions align="end">
+                <button mat-stroked-button type="button" (click)="abrirDetalle(fila)">
+                    Ver detalle
+                </button>
+            </mat-card-actions>
+            }
+        </mat-card>
+        }
+    </div>
+
+    <!-- ARREGLO SIMPLE O MIXTO -->
+    } @else if (seccion.tipo === 'array') {
+    <div class="grid-json">
+        @for (nodo of elementosPagina(hijosConInformacion(seccion.hijos)); track nodo.ruta; let indice = $index) {
+        <mat-card class="tarjeta-json" appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>
+                    #{{ (pageIndex() * pageSize()) + indice + 1 }}
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                {{ resumenNodo(nodo) }}
+            </mat-card-content>
+            @if (!esValorSimple(nodo)) {
+            <mat-card-actions align="end">
+                <button mat-button type="button" (click)="abrirDetalle(nodo)">
+                    Ver detalle
+                </button>
+            </mat-card-actions>
+            }
+        </mat-card>
+        }
+    </div>
+
+    <!-- OBJETO -->
+    } @else {
+
+        <!-- CAMPOS PRINCIPALES -->
+        @if (camposPrincipales(seccion.hijos).length > 0) {
+        <mat-card class="tarjeta-json" appearance="outlined">
+            <mat-card-content>
+                @for (nodo of camposPrincipales(seccion.hijos); track nodo.ruta) {
+                <div class="campo-json">
+                    <strong>{{ formarString(nodo.nombre) }}:</strong>
+                    <span>{{ mostrarValor(nodo) }}</span>
+                </div>
+                }
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <button mat-button type="button" (click)="abrirDetalle(seccion)">
+                    Ver detalle
+                </button>
+            </mat-card-actions>
+        </mat-card>
+        }
+
+    }
+</div>
+    <!-- PAGINADOR -->
+    @if (seccion.tipo === 'array' && hijosConInformacion(seccion.hijos).length > pageSize()) {
+        <mat-paginator [length]="hijosConInformacion(seccion.hijos).length"
+                        [showFirstLastButtons]="showFirstLastButtons"
+                        [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                        [pageSizeOptions]="[5,10,20,30,40,50,100]" (page)="cambiarPagina($event)">
+        </mat-paginator>
+    }
+}

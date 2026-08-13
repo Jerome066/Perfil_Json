@@ -134,7 +134,6 @@ export class JsonLevelsComponent {
       });
 
     }
-    console.log(nodos);
     return nodos;
 
   }

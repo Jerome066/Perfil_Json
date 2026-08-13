@@ -32,38 +32,50 @@ export class JsonTablesComponent {
   }
 
   tieneInformacion(nodo: JsonNode | null | undefined): boolean {
+
     if (!nodo) {
       return false;
     }
-    // NODO CON HIJOS
+
+    // Si tiene hijos, solamente comprobamos
+    // si alguno de sus hijos directos tiene información.
     if (nodo.hijos && nodo.hijos.length > 0) {
+
       return nodo.hijos.some(
-        hijo =>
-          this.tieneInformacion(hijo)
+        hijo => this.tieneInformacion(hijo)
       );
+
     }
-    // VALOR
+
+    // Sin hijos: es un valor.
     const valor = nodo.valor;
-    // null / undefined
+
     if (valor === undefined || valor === null) {
       return false;
     }
 
-    // STRING
     if (typeof valor === 'string') {
       return valor.trim().length > 0;
     }
-    // ARRAY
+
     if (Array.isArray(valor)) {
       return valor.length > 0;
     }
 
-    // OBJETO
     if (typeof valor === 'object') {
       return Object.keys(valor).length > 0;
     }
-    // NUMBER / BOOLEAN
+
     return true;
+  }
+
+  hijosComplejosConInformacion(nodos: JsonNode[]): JsonNode[] {
+    return nodos.filter(
+      nodo =>
+        !this.esValorSimple(nodo) &&
+        this.tieneInformacion(nodo)
+    );
+
   }
 
   // ARREGLO TABULABLE
@@ -103,21 +115,29 @@ export class JsonTablesComponent {
     const columnas = new Set<string>();
 
     for (const nodo of nodos) {
+
       if (nodo.tipo !== 'object') {
         continue;
       }
 
       for (const campo of nodo.hijos) {
+
         if (
           this.esValorSimple(campo) &&
-          this.tieneInformacion(campo)
+          this.tieneInformacion(campo) &&
+          campo.nombre
         ) {
+
           columnas.add(campo.nombre);
+
         }
+
       }
+
     }
 
     return Array.from(columnas);
+
   }
 
   // ELEMENTOS VISIBLES DE UNA PÁGINA
@@ -126,10 +146,15 @@ export class JsonTablesComponent {
    * correspondientes a la página actual.
    */
   elementosPagina(nodos: JsonNode[]): JsonNode[] {
-    const nodosValidos = this.hijosConInformacion(nodos);
-    const inicio = this.pageIndex() * this.pageSize();
-    return nodosValidos.slice(inicio, inicio + this.pageSize()
+
+    const inicio =
+      this.pageIndex() * this.pageSize();
+
+    return nodos.slice(
+      inicio,
+      inicio + this.pageSize()
     );
+
   }
 
   // VALOR DE CAMPO
@@ -137,12 +162,17 @@ export class JsonTablesComponent {
    * Busca un campo dentro de una fila.
    */
   valorDeCampo(fila: JsonNode, columna: string): string {
+
     const campo = fila.hijos.find(
-      nodo => nodo.nombre === columna && this.tieneInformacion(nodo)
+      nodo =>
+        nodo.nombre === columna &&
+        this.tieneInformacion(nodo)
     );
+
     if (!campo) {
       return '—';
     }
+
     return this.mostrarValor(campo);
   }
 
@@ -178,16 +208,19 @@ export class JsonTablesComponent {
    * de un arreglo.
    */
   resumenNodo(nodo: JsonNode): string {
+
     if (this.esValorSimple(nodo)) {
       return this.mostrarValor(nodo);
     }
 
-    const hijosValidos = this.hijosConInformacion(nodo.hijos);
+    const hijosValidos =
+      this.hijosConInformacion(nodo.hijos);
 
     const etiqueta =
       nodo.tipo === 'array'
         ? 'elementos'
         : 'campos';
+
     return `${hijosValidos.length} ${etiqueta}`;
   }
 
@@ -268,7 +301,14 @@ export class JsonTablesComponent {
   }
 
   esValorSimple(nodo: JsonNode): boolean {
-    return nodo.hijos.length === 0;
+
+    return (
+      nodo.tipo === 'string' ||
+      nodo.tipo === 'number' ||
+      nodo.tipo === 'boolean' ||
+      nodo.tipo === 'null'
+    );
+
   }
 
   //Convierte el valor del nodo a texto.

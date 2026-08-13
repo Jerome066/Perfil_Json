@@ -3,12 +3,14 @@ import { JsonNode } from '../../models/json-node';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { JsonSeccionesComponent } from '../json-secciones/json-secciones.component';
-
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { JsonTablesComponent } from '../json-tables/json-tables.component';
+import { JsonCardsComponent } from '../json-cards/json-cards.component';
 
 @Component({
   selector: 'app-json-menu',
-  imports: [MatButtonModule, MatListModule, JsonSeccionesComponent,JsonTablesComponent],
+  imports: [MatButtonModule, MatListModule, MatButtonToggleModule, JsonTablesComponent, MatIconModule,JsonCardsComponent],
   templateUrl: './json-menu.component.html',
   styleUrl: './json-menu.component.css'
 })
@@ -18,6 +20,9 @@ export class JsonMenuComponent {
 
   /** Nodo elegido por el usuario; su detalle se delega a JsonSeccionesComponent. */
   nodoActual = signal<JsonNode | null>(null);
+
+  /**Cambio de vista */
+  vista = signal<'card' | 'table'>('table');
 
   /** Actualiza la sección cuyo contenido se muestra debajo del menú. */
   informacionNodo(nodo: JsonNode): void {
@@ -35,4 +40,9 @@ export class JsonMenuComponent {
       .join(' ');
   }
 
+
+  //Cambio de vista entre tarjetas y tabla
+  cambiarVista(valor: 'card' | 'table') {
+    this.vista.set(valor);
+  }
 }

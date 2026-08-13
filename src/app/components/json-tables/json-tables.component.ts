@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { JsonNode } from '../../models/json-node';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -23,6 +23,13 @@ export class JsonTablesComponent {
   disabled = false;
   /**DIALOG*/
   private readonly dialog = inject(MatDialog);
+
+  constructor() {
+    effect(() => {
+      this.arbol();
+      this.pageIndex.set(0);
+    });
+  }
 
   tieneInformacion(nodo: JsonNode | null | undefined): boolean {
     if (!nodo) {
@@ -148,8 +155,8 @@ export class JsonTablesComponent {
     this.dialog.open(JsonDetalleDialogComponent,
       {
         data: nodo,
-        width: '1000px',
-        maxWidth: '95vw',
+        width: '1200px',
+        maxWidth: '100vw',
         maxHeight: '100vh',
         autoFocus: false
       }

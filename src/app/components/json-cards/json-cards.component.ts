@@ -3,16 +3,19 @@ import { JsonNode } from '../../models/json-node';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import { JsonSeccionesComponent } from "../json-secciones/json-secciones.component";
+
 
 @Component({
-  selector: 'app-json-tables',
-  imports: [MatPaginatorModule, MatButtonModule],
-  templateUrl: './json-tables.component.html',
-  styleUrl: './json-tables.component.css'
+  selector: 'app-json-cards',
+  imports: [MatPaginatorModule, MatButtonModule, MatCardModule],
+  templateUrl: './json-cards.component.html',
+  styleUrl: './json-cards.component.css'
 })
-export class JsonTablesComponent {
+export class JsonCardsComponent {
 
-  //Nodo que será representado.
+   //Nodo que será representado.
   arbol = input.required<JsonNode | null>();
   //Página actual.
   pageIndex = signal(0);

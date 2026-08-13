@@ -28,11 +28,26 @@
             </mat-list-item>
         }
     }
+    <mat-button-toggle-group name="fontStyle" aria-label="Font Style" class="cambioVista" [value]="vista()"
+        (change)="cambiarVista($event.value)">
+        <mat-button-toggle value="table"><mat-icon>table_chart</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="card"><mat-icon>view_comfy</mat-icon></mat-button-toggle>
+    </mat-button-toggle-group>
 </mat-list>
 
-<!-- Crea la vista de detalle únicamente cuando el usuario selecciona un nodo navegable. -->
-@if (nodoActual(); as nodo) {
-    <!-- Envía el nodo completo para que json-secciones decida cómo representarlo. -->
-    <!-- <app-json-secciones [arbol]="nodo"></app-json-secciones> -->
-    <app-json-tables [arbol]="nodo"></app-json-tables>
+<!-- cambio de vista -->
+@if (vista() === "table") {
+    <!-- Crea la vista de detalle únicamente cuando el usuario selecciona un nodo navegable. -->
+    @if (nodoActual(); as nodo) {
+        <!-- Envía el nodo completo para que json-secciones decida cómo representarlo. -->
+        <!-- <app-json-secciones [arbol]="nodo"></app-json-secciones> -->
+        <app-json-tables [arbol]="nodo"></app-json-tables>
+    }
+}@else {
+    <!-- Crea la vista de detalle únicamente cuando el usuario selecciona un nodo navegable. -->
+    @if (nodoActual(); as nodo) {
+        <!-- Envía el nodo completo para que json-secciones decida cómo representarlo. -->
+        <!-- <app-json-secciones [arbol]="nodo"></app-json-secciones> -->
+        <app-json-cards [arbol]="nodo"></app-json-cards>
+    }
 }

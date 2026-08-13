@@ -1,0 +1,189 @@
+/* =========================================
+   CONTENEDOR PRINCIPAL
+   ========================================= */
+
+:host {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.contenedor-tarjetas {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+/* =========================================
+   TÍTULO DE CADA SECCIÓN
+   ========================================= */
+
+.titulo-seccion {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ddd;
+}
+
+
+/* =========================================
+   GRID DE TARJETAS
+   ========================================= */
+
+.grid-json {
+    display: grid;
+    padding-left: 100px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 80%;
+}
+
+
+/* =========================================
+   TARJETAS JSON
+   ========================================= */
+
+.tarjeta-json {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+    background-color: #fff;
+}
+
+.tarjeta-json:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================
+   HEADER DE LAS TARJETAS
+   ========================================= */
+
+mat-card-header {
+    padding-bottom: 8px;
+}
+
+mat-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   CONTENIDO DE LAS TARJETAS
+   ========================================= */
+
+mat-card-content {
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+
+/* =========================================
+   CAMPOS JSON
+   ========================================= */
+
+.campo-json {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.campo-json:last-child {
+    border-bottom: none;
+}
+
+.campo-json strong {
+    min-width: 130px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.campo-json span {
+    flex: 1;
+    word-break: break-word;
+}
+
+
+/* =========================================
+   ACCIONES
+   ========================================= */
+
+mat-card-actions {
+    padding: 8px 16px 16px;
+}
+
+
+/* =========================================
+   BOTONES
+   ========================================= */
+
+button {
+    border-radius: 8px;
+}
+
+
+/* =========================================
+   PAGINADOR
+   ========================================= */
+
+mat-paginator {
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    .grid-json {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .campo-json {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .campo-json strong {
+        min-width: auto;
+    }
+}
+
+
+/* =========================================
+   RESPONSIVE - CELULAR
+   ========================================= */
+
+@media (max-width: 480px) {
+
+    .grid-json {
+        grid-template-columns: 1fr;
+    }
+
+    .titulo-seccion {
+        font-size: 1.1rem;
+    }
+
+    .tarjeta-json {
+        border-radius: 8px;
+    }
+
+    .campo-json {
+        padding: 6px 0;
+    }
+}

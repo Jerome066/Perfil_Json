@@ -31,34 +31,33 @@ export class JsonTablesComponent {
     });
   }
 
+  //verifica si tiene informacion o si esta vacio el nodo
   tieneInformacion(nodo: JsonNode | null | undefined): boolean {
 
+    //Verifica que exista el nodo
     if (!nodo) {
       return false;
     }
 
     // Si tiene hijos, solamente comprobamos
     // si alguno de sus hijos directos tiene información.
+    //Recursivo
     if (nodo.hijos && nodo.hijos.length > 0) {
-
-      return nodo.hijos.some(
-        hijo => this.tieneInformacion(hijo)
-      );
-
+      return nodo.hijos.some(hijo => this.tieneInformacion(hijo)); // Con some verifica que al menos uno cumpla con la condicion
     }
 
     // Sin hijos: es un valor.
+    // Nodo hoja
     const valor = nodo.valor;
-
     if (valor === undefined || valor === null) {
-      return false;
+      return false; // No hay información.
     }
 
-    if (typeof valor === 'string') {
-      return valor.trim().length > 0;
+    if (typeof valor === 'string') { //typeof regresa el TIPO de valor
+      return valor.trim().length > 0; //trim permite quitar los espacios de la cadena
     }
 
-    if (Array.isArray(valor)) {
+    if (Array.isArray(valor)) { // Array.isArray verifica que realmente sea un Array
       return valor.length > 0;
     }
 
@@ -69,37 +68,23 @@ export class JsonTablesComponent {
     return true;
   }
 
-  hijosComplejosConInformacion(nodos: JsonNode[]): JsonNode[] {
-    return nodos.filter(
-      nodo =>
-        !this.esValorSimple(nodo) &&
-        this.tieneInformacion(nodo)
+  // HIJOS CON INFORMACIÓN
+  // Devuelve únicamente los hijos que realmente contienen información.
+  // Esta función es especialmente importante para los arreglos.
+  hijosConInformacion(nodos: JsonNode[]): JsonNode[] {
+    return nodos.filter( // filter crea un nuevo arreglo con todos los elementos que cumplen una condición
+      nodo => this.tieneInformacion(nodo)
     );
-
   }
 
   // ARREGLO TABULABLE
-  /**
-   * Determina si un arreglo está formado por objetos
-   * que comparten campos simples con información.
-   */
+  //  Determina si un arreglo está formado por objetos
+  //  que comparten campos simples con información.
   esArregloDeObjetosTabulable(nodos: JsonNode[]): boolean {
-    if (nodos.length === 0 || !nodos.every(nodo => nodo.tipo === 'object')) {
+    if (nodos.length === 0 || !nodos.every(nodo => nodo.tipo === 'object')) { // Every revisa que todos los arreglos cumplan la condicion
       return false;
     }
     return (this.columnasArreglo(nodos).length > 0);
-  }
-
-  // HIJOS CON INFORMACIÓN
-  /**
-      Devuelve únicamente los hijos que realmente contienen
-      información.
-      Esta función es especialmente importante para los arreglos.
-   */
-  hijosConInformacion(nodos: JsonNode[]): JsonNode[] {
-    return nodos.filter(
-      nodo => this.tieneInformacion(nodo)
-    );
   }
 
   // COLUMNAS PRINCIPALES
@@ -111,33 +96,18 @@ export class JsonTablesComponent {
   }
 
   columnasArreglo(nodos: JsonNode[]): string[] {
-
     const columnas = new Set<string>();
-
     for (const nodo of nodos) {
-
       if (nodo.tipo !== 'object') {
-        continue;
+        continue; // continue permite saltar una iteracion de un bucle 
       }
-
       for (const campo of nodo.hijos) {
-
-        if (
-          this.esValorSimple(campo) &&
-          this.tieneInformacion(campo) &&
-          campo.nombre
-        ) {
-
+        if (this.esValorSimple(campo) && this.tieneInformacion(campo) && campo.nombre) {
           columnas.add(campo.nombre);
-
         }
-
       }
-
     }
-
     return Array.from(columnas);
-
   }
 
   // ELEMENTOS VISIBLES DE UNA PÁGINA
@@ -282,7 +252,7 @@ export class JsonTablesComponent {
     );
   }
 
-  //////////////////////////////////////
+  ////////////////////////////////////////////////////////////
   // FORMATEAR NOMBRES
   formarString(key: string): string {
 
